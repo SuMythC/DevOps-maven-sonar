@@ -1,9 +1,11 @@
+
 # DevOps Jenkins Pipeline: Maven, SonarQube, Trivy, Docker, Kubernetes
 
 ![Project Overview](https://github.com/user-attachments/assets/f067cfce-6233-4cf2-bf76-ee0c3ae52d4a)
 
 This repository demonstrates a Jenkins pipeline integrating Maven, SonarQube, Trivy, Docker, and Kubernetes for continuous integration and deployment.
 
+## Note: Please note that this Maven code originally belongs to another GitHub user, and I am using it for my DevOps purposes. Thank you.
 ## Jenkins Pipeline: Maven, SonarQube, and Trivy
 
 The pipeline automates the process of building, scanning, and deploying applications. Here's how it's set up:
