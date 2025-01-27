@@ -1,0 +1,70 @@
+pipeline {
+    agent any
+    
+    tools {
+        jdk 'jdk21'
+        maven 'mvn'
+    } 
+
+    environment{
+        SCANNER_HOME = tool 'sonar-scanner'
+    }
+
+    stages {
+        stage('GIT CHECKOUT') {
+            steps {
+                git branch: 'main', url: 'https://github.com/SuMythC/mavenjenkins.git'
+            }
+        }
+        
+        stage('CODE COMPILE USING MAVEN') {
+            steps {
+                sh 'mvn clean compile'
+            }
+        }
+        
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv("sonar-scanner") {
+                    sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=DevOps-CICD \
+                    -Dsonar.java.binaries=. \
+                    -Dsonar.projectKey=DevOps-CICD '''
+                }
+            }
+        }
+        
+        stage('Trivy Scan') {
+            steps {
+                sh 'trivy fs --security-checks vuln,config /var/lib/jenkins/workspace/maven-sonar-trivy'
+                sh 'pwd'
+            }
+        }
+        
+         stage("Build JAR") {
+            steps {
+                sh "mvn clean install"
+            }
+        }
+        
+         stage("Docker Build AND PUSH") {
+            steps {
+               script{
+                    withDockerRegistry(credentialsId: 'username and password for docker', toolName: 'mydockydocker') {
+                    sh "docker build -t sumyth13/java:latest ."
+                    sh "docker push sumyth13/java:latest"
+                   }
+               }
+            }
+        }
+        
+        stage("Deploy to kubernetes") {
+            steps {
+                script{
+                    kubernetesDeploy(configs: 'deploy.yml', kubeconfigId: 'my-kube-config')
+                }
+            }
+        }
+        
+    }
+}
+
